@@ -1,0 +1,2 @@
+# lunchbot
+Lunch Registration Bot
