@@ -1,0 +1,14 @@
+version: '2'
+services:
+  flask:
+    build: ./flask
+    ports:
+     - "5000:5000"
+    external_links:
+     - some-postgres:postgres
+  some-postgres:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+
+
