@@ -1,5 +1,11 @@
 version: '2'
 services:
+  botkit:
+    build: ./botkit
+    ports:
+     - "8888:8888"
+    external_links:
+     - flask:flask
   flask:
     build: ./flask
     ports:

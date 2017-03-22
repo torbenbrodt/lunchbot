@@ -7,11 +7,19 @@ The actual chatbot is missing so far. It will be created using botkit as part of
 
 ## build it
 ```bash
+git clone --recursive https://github.com/torbenbrodt/lunchbot
 docker-compose build
+```
+
+## develop it
+probably you want to change the javascript and mount it with -v parameter?
+```bash
+docker run -p 8888:8888 -it --rm --name my-running-app my-nodejs-app node slack_app.js
 ```
 
 ## run it
 ```bash
+TOKEN=yourslacktoken
 docker-compose up
 ```
 
