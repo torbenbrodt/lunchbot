@@ -1,11 +1,19 @@
 version: '2'
 services:
   botkit:
-    build: ./botkit
+    build: ./chatbot
     ports:
      - "8888:8888"
     external_links:
      - flask:flask
+    volumes:
+      - ./chatbot:/usr/src/app
+    working_dir: /usr/src/app
+    environment:
+      - token=${slack_token}
+    entrypoint:
+      - node
+      - chatbot.js
   flask:
     build: ./flask
     ports:
