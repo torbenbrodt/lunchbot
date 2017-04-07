@@ -33,7 +33,7 @@ Start flask and postgres via.
 ```bash
 docker-compose up flask some-postgres
 ```
-Your code should lives in [chatbot/chatbot.js](chatbot/chatbot.js). Here the actual work happens.
+Your code lives in [chatbot/chatbot.js](chatbot/chatbot.js). Here the actual work happens.
 To run it please execute
 ```bash
 docker-compose up botkit
