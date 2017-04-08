@@ -1,11 +1,14 @@
-FROM library/node:slim
+FROM library/node:alpine
 
-COPY botkit /app
-WORKDIR /app
+# Create app directory
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
 
-RUN apt-get update
-RUN apt-get -y install git
-RUN cd /app
+# Install app dependencies
+COPY ./botkit/package.json /usr/src/app/
 #RUN npm install request --save
 RUN npm install --production
-#RUN grep request package.json
+
+# Bundle app source
+COPY ./botkit /usr/src/app
+

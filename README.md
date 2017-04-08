@@ -33,16 +33,16 @@ Start flask and postgres via.
 ```bash
 docker-compose up flask some-postgres
 ```
-Your code lives in [chatbot/chatbot.js](chatbot/chatbot.js). Here the actual work happens.
+Your code lives in [chatbot/app/server.js](chatbot/app/server.js). Here the actual work happens.
 To run it please execute
 ```bash
-docker-compose up botkit
+docker-compose up chatbot
 ```
 
 ### Debugging in bash
 Sometimes docker-composer is just to generic and you want to execute commands on your own.
 ```bash
-docker run -p 8888:8888 -it --rm --name my-running-app -v "$PWD/chatbot/chatbot.js":/app/chatbot.js -w /app --env-file .env lunchbot_botkit /bin/bash
+docker run -it --rm --name my-running-app -v "$PWD/chatbot/app":/usr/src/app/app -w /usr/src/app --env-file .env lunchbot_chatbot /bin/bash
 ```
 
 # API Examples
