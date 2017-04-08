@@ -6,7 +6,10 @@ WORKDIR /usr/src/app
 
 # Install app dependencies
 COPY ./botkit/package.json /usr/src/app/
-#RUN npm install request --save
+
+# Add some new dependencies
+RUN npm install strtotime --save
+
 RUN npm install --production
 
 # Bundle app source
