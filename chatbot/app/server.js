@@ -33,6 +33,10 @@ var bot = controller.spawn({
     token: process.env.token
 }).startRTM();
 
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
 controller.hears(['create lunch'], 'direct_message,direct_mention,mention', function (bot, message) {
 
     bot.startConversation(message, function (err, convo) {
@@ -115,26 +119,104 @@ console.log(response);
 });
 
 controller.hears(['status'], 'direct_message,direct_mention,mention', function (bot, message) {
-    request.get('http://flask:5000/api/lunch', {}, function (error, response, body) {
-        var parsed = JSON.parse(body);
-        bot.reply(message, 'There is ' + parsed.num_results + ' lunches available. Do you want to register for any?');
+    request.get('http://flask:5000/api/lunch', {json: true}, function (error, response, body) {
+        bot.reply(message, 'There is ' + body.num_results + ' lunches available. Do you want to register for any?');
     });
 });
 
 controller.hears(['register'], 'direct_message,direct_mention,mention', function (bot, message) {
-    var json = {
-        username: message.user + '_' + Math.random().toString(36).substring(3),
-        lunch_id: 1
-    };
 
-    request.post('http://flask:5000/api/registration', {form: json}, function (error, response, body) {
-            if (!error && response.statusCode == 201) {
-                bot.reply(message, 'Thx for joining. I registered you for "%s. Is there anything else I can do for you?"');
-            } else {
-                bot.reply(message, 'Something failed. Is there anything else I can do for you?"');
+    request.get('http://flask:5000/api/lunch', {json: true}, function (error, response, body) {
+        futureLunches = body.objects.filter(function(lunch) {
+            return strtotime(lunch.date) > ((new Date()).getTime() / 1000);
+        });
+
+        bot.startConversation(message, function (err, convo) {
+            var lunch_id = 0;
+
+            var text = 'For which do you want to register?';
+            for (var i=0; i<futureLunches.length; i++) {
+                text += '\n' + (i+1) + '. ' + futureLunches[i].title;
             }
-        }
-    );
+
+            convo.say('There is ' + futureLunches.length + ' future lunches.');
+            if (futureLunches.length == 0) {
+                convo.stop();
+            }
+
+            var tries = 0;
+            convo.ask(text, function (response, convo) {
+                var hits = [];
+                var text = response.text;
+
+                for (var i=0; i<futureLunches.length; i++) {
+                    if (i == response.text) {
+                        hits.push(futureLunches[i].id);
+                    }
+                    if ((new RegExp(text, 'i')).exec(futureLunches[i].title)) {
+                        hits.push(futureLunches[i].id);
+                    }
+                }
+
+                if (hits.length == 1) {
+                    convo.next();
+                } else {
+                    bot.reply(message, "tries " + tries);
+                    tries++;
+
+                    if (tries < 3) {
+                        bot.reply(message, "Sorry friend. There is " + hits.length + " lunches like that.");
+                        convo.repeat();
+                    } else {
+                        bot.reply(message, "Sorry friend. I did not get you. Please try again later.");
+                        convo.stop();
+                    }
+                }
+
+            }, {'key': 'lunch_id'});
+
+            convo.on('end', function (convo) {
+                if (convo.status == 'completed') {
+                    var hits = [];
+                    var text = convo.extractResponse('lunch_id');
+
+                    bot.reply(message, "text: " + text + " in total " + futureLunches.length);
+
+                    for (var i=0; i<futureLunches.length; i++) {
+                        if (i == text) {
+                            hits.push(futureLunches[i].id);
+                        }
+                        if ((new RegExp(text, 'i')).exec(futureLunches[i].title)) {
+                            hits.push(futureLunches[i].id);
+                        }
+                    }
+
+                    if (hits.length != 1) {
+                        bot.reply(message, 'ERROR');
+                        convo.end();
+                        return;
+                    }
+
+                    var data = {
+                        username: message.user + '_' + Math.random().toString(36).substring(3),
+                        lunch_id: hits[0]
+                    };
+
+                    request.post('http://flask:5000/api/registration', {json: data}, function (error, response, body) {
+                            if (!error && response.statusCode == 201) {
+                                bot.reply(message, 'I registered you. Is there anything else I can do for you?"');
+                            } else {
+                                bot.reply(message, 'Something failed. Is there anything else I can do for you?"');
+                            }
+                        }
+                    );
+
+                } else {
+                    bot.reply(message, 'OK, error!');
+                }
+            });
+        });
+    });
 
 });
 
