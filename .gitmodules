@@ -1,3 +1,6 @@
 [submodule "chatbot/botkit"]
 	path = chatbot/botkit
 	url = https://github.com/howdyai/botkit.git
+[submodule "adaas"]
+	path = adaas
+	url = https://github.com/torbenbrodt/adaas.git
