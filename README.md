@@ -52,7 +52,7 @@ The following examples show you how to work with it using your command line.
 ```bash
 curl -H "Content-Type: application/json" -X POST -d '{
   "chef": "Bob", 
-  "date": "2017-04-01 12:30:00", 
+  "date": "2017-06-30 12:30:00", 
   "is_meat": "True", 
   "is_vegan": "False", 
   "is_vegetarian": "False",
