@@ -4,7 +4,6 @@ services:
     build: ./chatbot
     external_links:
      - flask:flask
-     - adaas:adaas
     volumes:
       - ./chatbot/app:/usr/src/app/app
     working_dir: /usr/src/app
@@ -13,10 +12,6 @@ services:
     entrypoint:
       - node
       - app/server.js
-  adaas:
-    build: ./adaas/extruct
-    ports:
-     - "10005:10005"
   flask:
     build: ./flask
     ports:
